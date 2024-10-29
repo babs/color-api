@@ -11,6 +11,7 @@ import PIL.ImageColor
 from asgi_logger.middleware import AccessLoggerMiddleware
 from fastapi import FastAPI
 from fastapi.middleware import Middleware
+from fastapi.responses import PlainTextResponse
 from fastapi.responses import StreamingResponse
 
 # from fastapi.middleware.cors import CORSMiddleware
@@ -30,9 +31,15 @@ COLORS = {
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     try:
-        envcol = os.environ.get("COLOR", "grey")
-        app.state.rgb_col = PIL.ImageColor.getrgb(COLORS.get(envcol, envcol))
+        app.state.envcol = os.environ.get("COLOR", "grey")
+        app.state.rgb_col = PIL.ImageColor.getrgb(
+            COLORS.get(
+                app.state.envcol,
+                app.state.envcol,
+            )
+        )
     except ValueError:
+        app.state.envol = "error"
         app.state.rgb_col = PIL.ImageColor.getrgb("grey")
     yield
 
@@ -63,6 +70,11 @@ def gen_png(h: int = 32, w: int = 32):
         yield from bio
 
     return StreamingResponse(gen_color(), media_type="image/png")
+
+
+@app.get("/api/v1/text", response_class=PlainTextResponse)
+def get_text_color():
+    return app.state.envcol
 
 
 if __name__ == "__main__":
