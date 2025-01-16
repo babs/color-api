@@ -77,6 +77,11 @@ def get_text_color():
     return app.state.envcol
 
 
+@app.get("/__check/ping", response_class=PlainTextResponse)
+def check_ping():
+    return "PONG"
+
+
 if __name__ == "__main__":
     import uvicorn
 
