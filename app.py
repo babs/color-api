@@ -77,6 +77,9 @@ def get_text_color():
     return app.state.envcol
 
 
+@app.get("/healthz", response_class=PlainTextResponse)
+@app.get("/livez", response_class=PlainTextResponse)
+@app.get("/readyz", response_class=PlainTextResponse)
 @app.get("/__check/ping", response_class=PlainTextResponse)
 def check_ping():
     return "PONG"
